@@ -68,10 +68,15 @@ class App(tk.Tk):
         super().__init__()
         self.geometry('300x200')
         self.title('Main Window')
+        self.grid()
+
         # place a button on the root window
-        ttk.Button(self,
-                   text='Make Labels',
-                   command=self.open_window).pack(expand=True)
+        button1 = ttk.Button(text='Make Labels', command=self.open_window)
+        button1.grid(row=0, column=0, sticky='W', pady=2)
+        button2 = ttk.Button(text='Button 2')
+        button2.grid(row=1, column=0, sticky='W', pady=2)
+        button3 = ttk.Button(text='Button 3')
+        button3.grid(row=2, column=2, sticky='W', pady=2)
 
     def open_window(self):
         window = Window(self)

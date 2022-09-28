@@ -1,7 +1,4 @@
-import io
-import tkinter as tk
 from PIL import Image, ImageTk
-import Anag
 import qrcode
 
 
@@ -48,61 +45,6 @@ def add_labels_to_canvas(canvas, barcode_png, label=1):
                        text=bin_text, font=(font_type, font_size), fill='green')
     canvas.create_text(text_spacing_x, (text_spacing_y * 4 + text_shift_down), anchor='nw',
                        text=position_text, font=(font_type, font_size), fill='orange')
-
-
-def jtk_label(barcode1='BLANK', barcode2='BLANK'):
-    # global canvas
-    root = tk.Tk()
-    canvas_height = 800
-    canvas_width = 1200
-    canvas = tk.Canvas(root, width=canvas_width, height=canvas_height, bg='white')
-    canvas.grid(columnspan=2, rowspan=2, column=0, row=0, sticky='nw')
-    canvas.pack()
-
-    # Break down Barcode data
-
-    add_labels_to_canvas(canvas, barcode1)
-    if barcode2 != 'BLANK':
-        add_labels_to_canvas(canvas, barcode2, label=2)
-
-    # update changes to canvas
-
-    canvas.update()
-
-    # Create canvas .ps
-    ps = canvas.postscript(colormode='color')
-
-    # convert canvas.ps to .png readable
-    img = Image.open(io.BytesIO(ps.encode('utf-8')))
-
-    # destroy window
-    root.destroy()
-
-    # save .png
-    img.save(f'labels/{barcode1}_{barcode2}.png')
-
-    root.mainloop()
-
-
-def make_a_set_of_labels():
-    bin_index = 0
-    qr1 = ''
-    bin_list = Anag.get_bin_list()
-    for each in bin_list:
-        if bin_index == 0:
-            qr1 = each
-            generate_qr(name=each)
-            bin_index = 1
-        else:
-            qr2 = each
-            generate_qr(name=each)
-            bin_index = 0
-            # Create Labels as .PNGs
-            jtk_label(barcode1=qr1, barcode2=qr2)
-    # If binlist length is odd create a PNG with only 1 label
-    if len(bin_list) % 2 == 1:
-        # Create a Label as .PNG
-        jtk_label(barcode1=qr1)
 
 
 # Create QR codes and save as PNGs
