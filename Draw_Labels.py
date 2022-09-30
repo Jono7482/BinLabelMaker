@@ -25,7 +25,7 @@ def add_labels_to_canvas(canvas, barcode_png, label=1):
     font_size = 80
     label2_text_shift_right = 590
     font_type = 'Raleway'
-    print(f'barcode png = {barcode_png}')
+
     if label == 2:
         text_spacing_x = text_spacing_x + label2_text_shift_right
         barcode_x = barcode_x + barcode2_shift
@@ -33,8 +33,6 @@ def add_labels_to_canvas(canvas, barcode_png, label=1):
         canvas.create_image(barcode_x, barcode_y, image=img2, anchor='w')
     else:
         img1 = ImageTk.PhotoImage(Image.open(f'QRCodes/{barcode_png}.png'))
-        print(barcode_png)
-        print(img1)
         canvas.create_image(barcode_x, barcode_y, image=img1, anchor='w')
 
     canvas.create_text(text_spacing_x, (text_spacing_y * 1 + text_shift_down), anchor='nw',
