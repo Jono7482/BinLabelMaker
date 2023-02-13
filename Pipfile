@@ -8,6 +8,7 @@ pypdf2 = "*"
 pillow = "*"
 qrcode = "*"
 numpy = "*"
+sqlitedict = "*"
 
 [dev-packages]
 

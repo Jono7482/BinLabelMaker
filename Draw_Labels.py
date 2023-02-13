@@ -1,7 +1,6 @@
 from PIL import Image, ImageTk
 import qrcode
 
-
 global img1
 global img2
 
