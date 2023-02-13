@@ -1,13 +1,3 @@
-####################################
-# Ascending Number Array Generator #
-####################################
-import saved
-
-# Creates an array of numbers as strings given a start number and end number
-# 2 digit adds a 0 before the numbers 1-9 Ex. 01, 02
-# 3 digit adds 2 0's for numbers 1-9 and 1 0 for numbers 10-99
-import Data
-
 
 def number_list(start='0', end='0', digits=2):
     num_list = []
@@ -37,32 +27,6 @@ def letter_list(start, end):
         start += 1
         total -= 1
     return string_array
-
-
-# Create the lists of Aisles Sections, Bins, and Positions
-def get_bin_list(data='default', digits=2):
-    if data == 'default':
-        lst = saved.get_defualts()
-    elif data == 'custom':
-        lst = saved.get_custom()
-    else:
-        print('Data is not "Custom" or "Default"')
-        lst = saved.get_defualts()
-    aisles = number_list(start=lst['a_start'], end=lst['a_end'], digits=digits)
-    sections = (letter_list(start=lst['s_start'], end=lst['s_end']))
-    bins = number_list(start=lst['b_start'], end=lst['b_end'], digits=digits)
-    positions = (letter_list(start=lst['p_start'], end=lst['p_end']))
-
-    # Create the bin array
-    total = 0
-    bin_list = []
-    for aisle in aisles:
-        for section in sections:
-            for a_bin in bins:
-                for pos in positions:
-                    bin_list.append(f'{aisle}-{section}-{a_bin}-{pos}')
-                    total = total + 1
-    return bin_list, total
 
 
 # Create_bins_from_string takes a string with '-' as breaks and '...' as ranges
@@ -119,3 +83,4 @@ def create_bins_from_string(string):
             print('>>> Max of 5 categories (-) allowed')
     print(f'Total = {total}')
     print(f'Bin List = {bin_list}')
+    return bin_list, total
