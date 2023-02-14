@@ -20,18 +20,19 @@ def default_label_canvas(canvas, barcode_png, label=1):
     # Label settings
     barcode_x = 100
     barcode2_shift = 590
-    barcode_y = 200
-    text_spacing_x = 120
-    text_spacing_y = 70
+    barcode_y = 240
+    text_spacing_x = 290
+    text_spacing_y = 75
     text_shift_down = 375
+    text_spacing_x_adj = len(barcode_png) * 15
     font_size = 60
-    label2_text_shift_right = 590
-    logo_x = 190
+    label2_text_shift_right = 630
+    logo_x = 220
     logo_y = 650
     font_type = 'Raleway'
 
     if label == 2:
-        text_spacing_x = text_spacing_x + label2_text_shift_right
+        text_spacing_x = (text_spacing_x + label2_text_shift_right) - (text_spacing_x_adj * 0.28)
         barcode_x = barcode_x + barcode2_shift
         barcode_image2 = ImageTk.PhotoImage(Image.open(f'QRCodes/{barcode_png}.png'))
         canvas.create_image(barcode_x, barcode_y, image=barcode_image2, anchor='w')
@@ -42,7 +43,7 @@ def default_label_canvas(canvas, barcode_png, label=1):
         canvas.create_image(barcode_x, barcode_y, image=barcode_image1, anchor='w')
         logo_image1 = ImageTk.PhotoImage(Image.open(f'QRCodes/LagunaLogo3.png'))
         canvas.create_image(logo_x, logo_y, image=logo_image1, anchor='w')
-    canvas.create_text(text_spacing_x, (text_spacing_y * 1 + text_shift_down), anchor='nw',
+    canvas.create_text(text_spacing_x - text_spacing_x_adj, (text_spacing_y * 1 + text_shift_down), anchor='nw',
                        text=barcode_png, font=(font_type, font_size), fill='teal')
 
 
@@ -54,8 +55,9 @@ def full_page_label_canvas(canvas, label_id):
     barcode_y = 420
     logo_x = 310
     logo_y = 1090
-    text_spacing_x = 100
+    text_spacing_x = 372
     text_spacing_y = 820
+    text_spacing_x_adj = len(label_id) * 32
     font_size = 120
     font_type = 'Raleway'
 
@@ -63,7 +65,7 @@ def full_page_label_canvas(canvas, label_id):
     canvas.create_image(barcode_x, barcode_y, image=qr_image, anchor='w')
     logo_image1 = ImageTk.PhotoImage(Image.open(f'QRCodes/LagunaLogo3.png'))
     canvas.create_image(logo_x, logo_y, image=logo_image1, anchor='w')
-    canvas.create_text(text_spacing_x, text_spacing_y, anchor='nw',
+    canvas.create_text(text_spacing_x - text_spacing_x_adj, text_spacing_y, anchor='nw',
                        text=label_id, font=(font_type, font_size), fill='black')
 
 
@@ -76,7 +78,7 @@ def generate_qr(name, size=18):
         border=1,
     )
     qr.add_data(name)
-    img = qr.make_image(fill_color="black", back_color="white")
+    img = qr.make_image(fill_color="white", back_color="black")
     filename = f'QRCodes/{name}.png'
     img.save(filename)
 

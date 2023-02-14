@@ -39,8 +39,8 @@ class App(tk.Tk):
 
         self.combo_box_var = tk.StringVar()
         combo_box = ttk.Combobox(self, textvariable=self.combo_box_var)
-        combo_box['values'] = ('Default', '8 X 10', )
-        combo_box.set('Default')
+        combo_box['values'] = ('4 X 6', '8 X 10', )
+        combo_box.set('4 X 6')
         combo_box.grid(row=1, columnspan=4, column=0)
 
         def c_box_changed(event):
@@ -58,6 +58,8 @@ class App(tk.Tk):
         label_string.grid(row=5, columnspan=4, column=0, pady=0)
         label_string = ttk.Label(text='Ranges can be numbers OR letters', justify='center')
         label_string.grid(row=6, columnspan=4, column=0, pady=0)
+        label_string = ttk.Label(text="Jono'23  v1.0", justify='center')
+        label_string.grid(row=13, columnspan=2, column=4, pady=0)
 
         button1 = ttk.Button(text='Create Labels', command=self.open_window)
         button1.grid(row=11, columnspan=4, column=0, pady=4)
@@ -70,7 +72,7 @@ class App(tk.Tk):
         vertical_seperator.grid(rowspan=12, row=1, column=4, sticky='nsew', padx=10)
 
     def open_window(self):
-        if self.combo_box_var.get() == 'Default 4 X 6':
+        if self.combo_box_var.get() == '4 X 6':
             lbl_type = 'default'
         elif self.combo_box_var.get() == '8 X 10':
             lbl_type = '8by10'
