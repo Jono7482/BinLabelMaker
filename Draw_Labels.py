@@ -3,135 +3,66 @@ import qrcode
 import tkinter as tk
 import io
 import Anag
-
-global qr_image
-global barcode_image1
-global barcode_image2
-global logo_image1
-global logo_image2
-
-
-def default_label_canvas(canvas, barcode_png, label=1):
-    global barcode_image1
-    global barcode_image2
-    global logo_image1
-    global logo_image2
-
-    # Label settings
-    barcode_x = 100
-    barcode2_shift = 590
-    barcode_y = 240
-    text_spacing_x = 290
-    text_spacing_y = 75
-    text_shift_down = 375
-    text_spacing_x_adj = len(barcode_png) * 15
-    font_size = 60
-    label2_text_shift_right = 630
-    logo_x = 220
-    logo_y = 650
-    font_type = 'Raleway'
-
-    if label == 2:
-        text_spacing_x = (text_spacing_x + label2_text_shift_right) - (text_spacing_x_adj * 0.28)
-        barcode_x = barcode_x + barcode2_shift
-        barcode_image2 = ImageTk.PhotoImage(Image.open(f'QRCodes/{barcode_png}.png'))
-        canvas.create_image(barcode_x, barcode_y, image=barcode_image2, anchor='w')
-        logo_image2 = ImageTk.PhotoImage(Image.open(f'QRCodes/LagunaLogo3.png'))
-        canvas.create_image(logo_x + barcode2_shift, logo_y, image=logo_image2, anchor='w')
-    else:
-        barcode_image1 = ImageTk.PhotoImage(Image.open(f'QRCodes/{barcode_png}.png'))
-        canvas.create_image(barcode_x, barcode_y, image=barcode_image1, anchor='w')
-        logo_image1 = ImageTk.PhotoImage(Image.open(f'QRCodes/LagunaLogo3.png'))
-        canvas.create_image(logo_x, logo_y, image=logo_image1, anchor='w')
-    canvas.create_text(text_spacing_x - text_spacing_x_adj, (text_spacing_y * 1 + text_shift_down), anchor='nw',
-                       text=barcode_png, font=(font_type, font_size), fill='teal')
-
-
-def full_page_label_canvas(canvas, label_id):
-    global qr_image
-    global logo_image1
-    # Label settings
-    barcode_x = 0
-    barcode_y = 420
-    logo_x = 310
-    logo_y = 1090
-    text_spacing_x = 372
-    text_spacing_y = 820
-    text_spacing_x_adj = len(label_id) * 32
-    font_size = 120
-    font_type = 'Raleway'
-
-    qr_image = ImageTk.PhotoImage(Image.open(f'QRCodes/{label_id}.png'))
-    canvas.create_image(barcode_x, barcode_y, image=qr_image, anchor='w')
-    logo_image1 = ImageTk.PhotoImage(Image.open(f'QRCodes/LagunaLogo3.png'))
-    canvas.create_image(logo_x, logo_y, image=logo_image1, anchor='w')
-    canvas.create_text(text_spacing_x - text_spacing_x_adj, text_spacing_y, anchor='nw',
-                       text=label_id, font=(font_type, font_size), fill='black')
-
-
-# Create QR codes and save as PNGs
-def generate_qr(name, size=18):
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=size,
-        border=1,
-    )
-    qr.add_data(name)
-    img = qr.make_image(fill_color="white", back_color="black")
-    filename = f'QRCodes/{name}.png'
-    img.save(filename)
+import Label_specs
+import concurrent.futures
 
 
 class LabelWindow(tk.Toplevel):
-    def __init__(self, parent, label_type='default', label_string='default'):
+    def __init__(self, parent, label_type, label_string):
         super().__init__(parent)
+        self.qr_image_list = []
+        self.logo_image_list = []
         self.label_string = label_string
         self.label_type = label_type
+        self.form = Label_specs.label_formats[self.label_type]
+        self.lpp = self.form['lpp']
+        self.canvas_height = self.form['canvas_height'] * self.form['scale']
+        self.canvas_width = self.form['canvas_width'] * self.form['scale']
+        self.qr_size = self.form['qr_size']
+        self.canvas = tk.Canvas(self, width=self.canvas_width, height=self.canvas_height, bg='white')
+        self.canvas.pack()
+        self.binlist, self.total = Anag.create_bins_from_string(self.label_string)
+        # self.multi_thread()
+        self.prepare_labels()
 
-        if self.label_type == 'default':
-            canvas_height = 800
-            canvas_width = 1200
-            self.canvas = tk.Canvas(self, width=canvas_width, height=canvas_height, bg='white')
-            self.canvas.pack()
-            bin_index = 0
-            qr1 = ''
-            bin_list, total = Anag.create_bins_from_string(label_string)
-            for each in bin_list:
-                if bin_index == 0:
-                    qr1 = each
-                    generate_qr(name=each)
-                    bin_index = 1
-                else:
-                    qr2 = each
-                    generate_qr(name=each)
-                    bin_index = 0
-                    # Create Labels as .PNGs
-                    default_label_canvas(self.canvas, qr1)
-                    default_label_canvas(self.canvas, qr2, label=2)
-                    self.save_labels(qr1, qr2)
-                    self.canvas.delete('all')
-            #  If binlist length is odd create a PNG with only 1 label
-            if len(bin_list) % 2 == 1:
-                # Create a Label as .PNG
-                default_label_canvas(self.canvas, qr1)
-                self.save_labels(qr1, 'BLANK')
+    def prepare_labels(self):
+        each = None
+        for count, each in enumerate(self.binlist):
+            self.generate_qr(each)
+            self.create_label_canvas(each, label_num=count % self.lpp)
+            if count % self.lpp == self.lpp - 1:
+                self.save_labels(each, self.label_type)
                 self.canvas.delete('all')
-            self.close_window()
+        if len(self.binlist) % self.lpp != 0:
+            self.save_labels(each, self.label_type)
+            self.canvas.delete('all')
+        self.close_window()
 
-        elif self.label_type == '8by10':
-            canvas_height = 1200
-            canvas_width = 800
-            qr_size = 35
-            self.canvas = tk.Canvas(self, width=canvas_width, height=canvas_height, bg='white')
-            self.canvas.pack()
-            bin_list, total = Anag.create_bins_from_string(self.label_string)
-            for each in bin_list:
-                generate_qr(name=each, size=qr_size)
-                full_page_label_canvas(self.canvas, each)
-                self.save_labels(each, '8by10')
-                self.canvas.delete('all')
-            self.close_window()
+    def create_label_canvas(self, label_id, label_num=0):
+        qr_x = self.form['qr_x'] + self.form['x_shift'] * label_num
+        qr_y = self.form['qr_y'] + self.form['y_shift'] * label_num
+        text_x = self.form['text_x'] - len(label_id) * self.form['font_width'] + self.form['x_shift'] * label_num
+        text_y = self.form['text_y'] + self.form['y_shift'] * label_num
+        logo_x = self.form['logo_x'] + self.form['x_shift'] * label_num
+        logo_y = self.form['logo_y'] + self.form['y_shift'] * label_num
+        self.qr_image_list.insert(label_num, ImageTk.PhotoImage(Image.open(f'QRCodes/{label_id}.png')))
+        self.canvas.create_image(qr_x, qr_y, image=self.qr_image_list[label_num], anchor='w')
+        self.logo_image_list.insert(label_num, ImageTk.PhotoImage(Image.open(self.form['logo'])))
+        self.canvas.create_image(logo_x, logo_y, image=self.logo_image_list[label_num], anchor='w')
+        self.canvas.create_text(text_x, text_y, anchor='nw', text=label_id,
+                                font=(Label_specs.font_type, self.form['font_size']), fill='black')
+
+    def generate_qr(self, name):
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=self.qr_size,
+            border=1,
+        )
+        qr.add_data(name)
+        img = qr.make_image(fill_color="white", back_color="black")
+        filename = f'QRCodes/{name}.png'
+        img.save(filename)
 
     def save_labels(self, barcode1, barcode2):
         self.canvas.update()
@@ -147,5 +78,10 @@ class LabelWindow(tk.Toplevel):
 
     def close_window(self):
         self.destroy()
-
+    #
+    # def multi_thread(self):
+    #     with concurrent.futures.ProcessPoolExecutor() as executor:
+    #         lst = self.binlist
+    #         for results in executor.map(self.prepare_labels, lst):
+    #             print(results)
 

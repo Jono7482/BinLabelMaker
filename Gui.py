@@ -1,17 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
-import saved
+import Label_specs
 import Draw_Labels
 import Anag
-
-
-def get_bin_list_text(list_name):
-    bin_list, total = Anag.create_bins_from_string(list_name)
-    lst = ''
-    for each in bin_list:
-        lst += f'{each}\n'
-    lst += f'Total= {total}\n'
-    return lst
 
 
 class App(tk.Tk):
@@ -24,10 +15,10 @@ class App(tk.Tk):
         self.grid()
 
         self.entry_string_var = tk.StringVar()
-        self.entry_string_var.set(saved.get_default_string())
+        self.entry_string_var.set(Label_specs.default_string)
 
         # place a button on the root window
-        label_top = ttk.Label(text='LABEL TYPE:', justify='center')
+        label_top = ttk.Label(text='Label Size:', justify='center', font='bold')
         label_top.grid(row=0, columnspan=4, column=0, pady=5)
 
         self.text_widget = tk.Text(self, height=20, width=24)
@@ -35,18 +26,18 @@ class App(tk.Tk):
         self.text_widget.config(yscrollcommand=scroll_bar.set)
         scroll_bar.grid(rowspan=12, row=1, column=6, sticky='ns')
         self.text_widget.grid(rowspan=12, row=1, column=5, sticky='nw')
-        self.text_widget.insert(tk.END, get_bin_list_text(self.entry_string_var.get()))
+        self.text_widget.insert(tk.END, Anag.get_bin_list_text(self.entry_string_var.get()))
 
         self.combo_box_var = tk.StringVar()
         combo_box = ttk.Combobox(self, textvariable=self.combo_box_var)
-        combo_box['values'] = ('4 X 6', '8 X 10', )
-        combo_box.set('4 X 6')
+        combo_box['values'] = list(Label_specs.label_formats.keys())
+        combo_box.set(list(Label_specs.label_formats.keys())[0])
         combo_box.grid(row=1, columnspan=4, column=0)
 
         def c_box_changed(event):
             combo_box.bind('<<ComboboxSelected>>', c_box_changed)
 
-        label_string = ttk.Label(text='Enter Bin String:', justify='center')
+        label_string = ttk.Label(text='Enter Bin String:', justify='center', font='bold')
         label_string.grid(row=2, columnspan=4, column=0, pady=0)
         label_string_box = ttk.Label(text='String:', justify='center')
         label_string_box.grid(row=3, column=0, padx=8)
@@ -72,19 +63,11 @@ class App(tk.Tk):
         vertical_seperator.grid(rowspan=12, row=1, column=4, sticky='nsew', padx=10)
 
     def open_window(self):
-        if self.combo_box_var.get() == '4 X 6':
-            lbl_type = 'default'
-        elif self.combo_box_var.get() == '8 X 10':
-            lbl_type = '8by10'
-        else:
-            print('Label Type not Implemented')
-            lbl_type = 'default'
-        # Draw_Labels.LabelWindow(self)
-        Draw_Labels.LabelWindow(self, lbl_type, self.entry_string_var.get())
+        Draw_Labels.LabelWindow(self, self.combo_box_var.get(), self.entry_string_var.get())
 
     def get_bin_list_from_field(self):
         self.text_widget.delete('1.0', 'end')
-        self.text_widget.insert('end', get_bin_list_text(self.entry_string_var.get()))
+        self.text_widget.insert('end', Anag.get_bin_list_text(self.entry_string_var.get()))
 
 
 
