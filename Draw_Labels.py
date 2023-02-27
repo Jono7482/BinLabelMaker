@@ -4,7 +4,6 @@ import tkinter as tk
 import io
 import Anag
 import Label_specs
-import concurrent.futures
 
 
 class LabelWindow(tk.Toplevel):
@@ -55,12 +54,12 @@ class LabelWindow(tk.Toplevel):
     def generate_qr(self, name):
         qr = qrcode.QRCode(
             version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=self.qr_size,
             border=1,
         )
         qr.add_data(name)
-        img = qr.make_image(fill_color="white", back_color="black")
+        img = qr.make_image(fill_color="black", back_color="white")
         filename = f'QRCodes/{name}.png'
         img.save(filename)
 
@@ -78,10 +77,3 @@ class LabelWindow(tk.Toplevel):
 
     def close_window(self):
         self.destroy()
-    #
-    # def multi_thread(self):
-    #     with concurrent.futures.ProcessPoolExecutor() as executor:
-    #         lst = self.binlist
-    #         for results in executor.map(self.prepare_labels, lst):
-    #             print(results)
-
