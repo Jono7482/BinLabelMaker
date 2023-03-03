@@ -1,5 +1,6 @@
 font_type = 'Raleway'
 default_string = 'MC-1...2-A...B'
+logo_path = 'data/Laguna Logo_2022 color.png'
 label_formats = {'1 8X10': {
                     'lpp': 1,
                     'scale': 0.70,
@@ -12,7 +13,7 @@ label_formats = {'1 8X10': {
                     'qr_y': 300,
                     'text_x': 280,
                     'text_y': 575,
-                    'logo': 'data/LagunaLogo175.png',
+                    'logo': 175,
                     'logo_x': 205,
                     'logo_y': 750,
                     'font_width': 21,
@@ -30,7 +31,7 @@ label_formats = {'1 8X10': {
                     'qr_y': 240,
                     'text_x': 290,
                     'text_y': 475,
-                    'logo': 'data/LagunaLogo175.png',
+                    'logo': 175,
                     'logo_x': 220,
                     'logo_y': 675,
                     'font_width': 21,
@@ -48,7 +49,7 @@ label_formats = {'1 8X10': {
                     'qr_y': 120,
                     'text_x': 340,
                     'text_y': 55,
-                    'logo': 'data/LagunaLogo125.png',
+                    'logo': 125,
                     'logo_x': 300,
                     'logo_y': 160,
                     'font_width': 9,

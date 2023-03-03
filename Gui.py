@@ -9,8 +9,10 @@ class App(tk.Tk):
 
     def __init__(self):
         super().__init__()
-        self.geometry('600x380')
-        self.maxsize(590, 380)
+        size = (760, 500)
+        self.tk.call('tk', 'scaling', 2.0)
+        self.geometry(f'{size[0]}x{size[1]}')
+        self.maxsize(size[0], size[1])
         self.title('Jono Label Maker')
         self.grid()
 
