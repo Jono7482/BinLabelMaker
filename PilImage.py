@@ -1,11 +1,16 @@
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import Label_specs
+
+
+def resize_images(image, new_size):
+    image = image.resize(new_size)
+    return image
 
 
 class PI:
     def __init__(self, label_type='1 8X10'):
         self.label_type = label_type
-        self.form = Label_specs.label_formats[self.label_type]
+        self.form = Label_specs.label_formats_pil[self.label_type]
         self.qrs = []
         self.qr_size = self.form['qr_size']
         self.logos = []
@@ -18,40 +23,38 @@ class PI:
         self.image = Image.new('RGB', self.page_size, color='white')
 
     def load_qr(self, path):
-        print(f'path = {path}')
         self.qrs.append(Image.open(path))
-        print(f'self.qrs = {self.qrs}')
         for index, each in enumerate(self.qrs):
-            self.qrs[index] = self.resize_images(each, (self.form['qr_size']*33, self.form['qr_size']*33))
+            self.qrs[index] = resize_images(each, (self.form['qr_size']*33, self.form['qr_size']*33))
 
     def load_logo(self):
         self.logos.append(Image.open(Label_specs.logo_path))
         for index, each in enumerate(self.logos):
-            self.logos[index] = self.resize_images(each, (self.form['logo'], self.form['logo']))
+            self.logos[index] = resize_images(each, (self.form['logo'], self.form['logo']))
 
-    def resize_images(self, image, new_size=(200, 200)):
-        image = image.resize(new_size)
-        return image
+    def position_adjust(self, x, y, num):
+        x = x
+        y = y
+        if self.form['lpp'][0] > 1:
+            x = int(num * (self.image.width / self.form['lpp'][0]) + x)
+        if self.form['lpp'][1] > 1:
+            y = int(num * (self.image.height / self.form['lpp'][1]) + y)
+        return x, y
 
-    def paste_images(self, x, y, num, l_type):
-        if l_type == 'qr':
-            print(f'num = {num}')
-            self.image.paste(self.qrs[num], (int(x), int(y-275)))
-        if l_type == 'logo':
-            self.image.paste(self.logos[num], (x+140, y+200))
+    def paste_qr(self, num):
+        x, y = self.form['qr_x'], self.form['qr_y']
+        self.image.paste(self.qrs[num], (self.position_adjust(x, y, num)))
 
-    def save_image(self, name):
-        name = 'p' + name
-        self.image.save(name)
+    def paste_logo(self, num):
+        x, y = self.form['logo_x'], self.form['logo_y']
+        self.image.paste(self.logos[num], (self.position_adjust(x, y, num)))
 
-    def create_text(self):
-        pass
+    def save_image(self, barcode1, barcode2):
+        self.image.save(f'labels/{barcode1}_{barcode2}.png')
 
-# if __name__ == "__main__":
-    # pl = PI()
-    # pl.create_canvas()
-    # pl.load_images()
-    # pl.paste_images()
-    # pl.save_image()
-
+    def create_text(self, label_id, num):
+        x, y = self.form['text_x'], self.form['text_y']
+        draw = ImageDraw.Draw(self.image)
+        myFont = ImageFont.truetype('arial.ttf', self.form['font_size'])
+        draw.text((self.position_adjust(x, y, num)), label_id, fill="black", anchor="mm", font=myFont)
 

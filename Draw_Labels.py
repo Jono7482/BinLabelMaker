@@ -1,12 +1,10 @@
 from PIL import Image, ImageTk
 import qrcode
 import tkinter as tk
-import io
 import Anag
 import Label_specs
 import ctypes
 import PilImage
-
 
 
 class LabelWindow(tk.Toplevel):
@@ -18,7 +16,7 @@ class LabelWindow(tk.Toplevel):
         self.label_string = label_string
         self.label_type = label_type
         self.form = Label_specs.label_formats[self.label_type]
-        self.lpp = self.form['lpp']
+        self.lpp = self.form['lpp'][0] * self.form['lpp'][1]
         self.canvas_height = self.form['canvas_height'] * self.form['scale']
         self.canvas_width = self.form['canvas_width'] * self.form['scale']
         self.qr_size = self.form['qr_size']
@@ -35,13 +33,12 @@ class LabelWindow(tk.Toplevel):
         for count, each in enumerate(self.binlist):
             self.generate_qr(each)
             self.create_label_canvas(each, label_num=count % self.lpp)
-
             if count % self.lpp == self.lpp - 1:
-                self.save_labels(each, self.label_type)
+                self.pil.save_image(each, self.label_type)
                 self.canvas.delete('all')
                 self.pil.create_canvas()
         if len(self.binlist) % self.lpp != 0:
-            self.save_labels(each, self.label_type)
+            self.pil.save_image(each, self.label_type)
             self.canvas.delete('all')
             self.pil.create_canvas()
         self.close_window()
@@ -55,9 +52,9 @@ class LabelWindow(tk.Toplevel):
         logo_y = self.form['logo_y'] + self.form['y_shift'] * label_num
 
         self.qr_image_list.insert(label_num, ImageTk.PhotoImage(Image.open(f'QRCodes/{label_id}.png')))
-        self.pil.load_qr(f'QRCodes/{label_id}.png')     # pil image
+        self.pil.load_qr(f'QRCodes/{label_id}.png')
         self.canvas.create_image(qr_x, qr_y, image=self.qr_image_list[label_num], anchor='w')
-        self.pil.paste_images(qr_x, qr_y, label_num, l_type='qr')
+        self.pil.paste_qr(label_num)
 
         logo = Image.open(Label_specs.logo_path)
         logo = logo.resize((self.form['logo'], self.form['logo']))
@@ -65,10 +62,11 @@ class LabelWindow(tk.Toplevel):
         self.logo_image_list.insert(label_num, logo)
         self.pil.load_logo()
         self.canvas.create_image(logo_x, logo_y, image=self.logo_image_list[label_num], anchor='w')
-        self.pil.paste_images(logo_x, logo_y, label_num, l_type='logo')
+        self.pil.paste_logo(label_num)
 
         self.canvas.create_text(text_x, text_y, anchor='nw', text=label_id,
                                 font=(Label_specs.font_type, self.form['font_size']), fill='black')
+        self.pil.create_text(label_id, label_num)
 
     def generate_qr(self, name):
         qr = qrcode.QRCode(
@@ -81,20 +79,6 @@ class LabelWindow(tk.Toplevel):
         img = qr.make_image(fill_color="black", back_color="white")
         filename = f'QRCodes/{name}.png'
         img.save(filename)
-
-    def save_labels(self, barcode1, barcode2):
-        self.canvas.update()
-
-
-        # Create canvas .ps
-        ps = self.canvas.postscript(colormode='color')
-
-        # convert canvas.ps to .png readable
-        img = Image.open(io.BytesIO(ps.encode('utf-8')))
-
-        # save .png
-        img.save(f'labels/{barcode1}_{barcode2}.png')
-        self.pil.save_image(f'labels/{barcode1}_{barcode2}.png')
 
     def close_window(self):
         self.destroy()

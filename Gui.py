@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+
 import Label_specs
-import Draw_Labels
 import Anag
+import Make_Labels
 
 
 class App(tk.Tk):
@@ -17,7 +18,7 @@ class App(tk.Tk):
         self.grid()
 
         self.entry_string_var = tk.StringVar()
-        self.entry_string_var.set(Label_specs.default_string)
+        self.entry_string_var.set(Label_specs.DEFAULT)
 
         # place a button on the root window
         label_top = ttk.Label(text='Label Size:', justify='center', font='bold')
@@ -32,8 +33,8 @@ class App(tk.Tk):
 
         self.combo_box_var = tk.StringVar()
         combo_box = ttk.Combobox(self, textvariable=self.combo_box_var)
-        combo_box['values'] = list(Label_specs.label_formats.keys())
-        combo_box.set(list(Label_specs.label_formats.keys())[0])
+        combo_box['values'] = list(Label_specs.LABELS.keys())
+        combo_box.set(list(Label_specs.LABELS.keys())[0])
         combo_box.grid(row=1, columnspan=4, column=0)
 
         def c_box_changed(event):
@@ -65,7 +66,8 @@ class App(tk.Tk):
         vertical_seperator.grid(rowspan=12, row=1, column=4, sticky='nsew', padx=10)
 
     def open_window(self):
-        Draw_Labels.LabelWindow(self, self.combo_box_var.get(), self.entry_string_var.get())
+        Make_Labels.Labels(self.combo_box_var.get(), self.entry_string_var.get())
+        # Draw_Labels.LabelWindow(self, self.combo_box_var.get(), self.entry_string_var.get())
 
     def get_bin_list_from_field(self):
         self.text_widget.delete('1.0', 'end')

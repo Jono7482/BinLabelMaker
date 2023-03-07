@@ -1,58 +1,44 @@
-font_type = 'Raleway'
-default_string = 'MC-1...2-A...B'
-logo_path = 'data/Laguna Logo_2022 color.png'
-label_formats = {'1 8X10': {
-                    'lpp': 1,
-                    'scale': 0.70,
-                    'canvas_height': 1200,
-                    'canvas_width': 850,
+FONT = '/data/arial.ttf'
+DEFAULT = 'MC-1...2-A...B'
+LOGO = 'data/Laguna Logo_2022 color.png'
+
+LABELS = {'1 8X10': {
+                    'lpp': (1, 1),
+                    'canvas': (850, 1100),
                     'qr_size': 24,
-                    'x_shift': 0,
-                    'y_shift': 0,
                     'qr_x': 25,
-                    'qr_y': 300,
-                    'text_x': 280,
-                    'text_y': 575,
-                    'logo': 175,
-                    'logo_x': 205,
-                    'logo_y': 750,
-                    'font_width': 21,
-                    'font_size': 60,
+                    'qr_y': 25,
+                    'text_x': 425,  # canvas width / 2
+                    'text_y': 845,
+                    'logo': 230,
+                    'logo_x': 280,  # canvas width / 2 - logo / 2
+                    'logo_y': 870,
+                    'font_size': 100,
                 },
                 '2 4X6': {
-                    'lpp': 2,
-                    'scale': 1,
-                    'canvas_height': 800,
-                    'canvas_width': 1200,
-                    'qr_size': 18,
-                    'x_shift': 590,
-                    'y_shift': 0,
-                    'qr_x': 100,
-                    'qr_y': 240,
-                    'text_x': 290,
-                    'text_y': 475,
-                    'logo': 175,
-                    'logo_x': 220,
-                    'logo_y': 675,
-                    'font_width': 21,
-                    'font_size': 60,
+                    'lpp': (2, 1),
+                    'canvas': (1100, 850),
+                    'qr_size': 15,
+                    'qr_x': 20,
+                    'qr_y': 20,
+                    'text_x': 275,  # canvas width / 4
+                    'text_y': 570,
+                    'logo': 160,
+                    'logo_x': 195,  # canvas width / 4 - logo / 2
+                    'logo_y': 620,
+                    'font_size': 65,
                 },
                 '4 6X4': {
-                    'lpp': 4,
-                    'scale': 0.60,
-                    'canvas_height': 1400,
-                    'canvas_width': 800,
+                    'lpp': (1, 4),
+                    'canvas': (800, 1400),
                     'qr_size': 8,
-                    'x_shift': 0,
-                    'y_shift': 200,
                     'qr_x': 50,
-                    'qr_y': 120,
-                    'text_x': 340,
-                    'text_y': 55,
-                    'logo': 125,
-                    'logo_x': 300,
+                    'qr_y': 50,
+                    'text_x': 528,  # canvas width * .66
+                    'text_y': 100,
+                    'logo': 160,
+                    'logo_x': 448,  # canvas width * .66 - logo size / 2
                     'logo_y': 160,
-                    'font_width': 9,
-                    'font_size': 28,
+                    'font_size': 50,
                 },
                 }
