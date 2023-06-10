@@ -4,13 +4,21 @@ import Anag
 import Label_specs
 
 
+def strip_arrows(name):
+    _bin = name
+    if _bin[-1] == '▼' or _bin[-1] == '▲':
+        _bin = _bin.strip('▼')
+        _bin = _bin.strip('▲')
+        _bin = _bin.rstrip('▼')
+        _bin = _bin.rstrip('▲')
+    return _bin
+
+
 # Generate_Qr
 # Takes in a string creates a QR code
 # Then saves the QR code to QRCodes folder as .png file
-def generate_qr(name):
-    _bin = name
-    if _bin[-1] == '^':
-        _bin = _bin.rstrip('-^')
+def generate_qr(name, prefix_b=False, prefix_l=False):
+    _name = strip_arrows(name)
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_H,  # Error correction H for 30% error correction
@@ -18,10 +26,14 @@ def generate_qr(name):
         border=1,
     )
     # Add Prefix For BINS
-    _bin = '%B%' + _bin
+    _bin = _name
+    if prefix_b:
+        _bin = '%B%' + _bin
+    if prefix_l:
+        _bin = '%L%' + _bin
     qr.add_data(_bin)
     img = qr.make_image(fill_color="black", back_color="white")
-    filename = f'QRCodes/{name}.png'
+    filename = f'QRCodes/{_name}.png'
     img.save(filename)
 
 
@@ -32,11 +44,13 @@ def generate_qr(name):
 # sample string (MC-1...2-A...B)
 # Label_type must be a key from Label_specs file
 class Labels:
-    def __init__(self, label_type, label_string):
+    def __init__(self, label_type, label_string, dash, arrow, arrow_up, prefix_b, prefix_l):
         self.label_type = label_type
         self.variables = Label_specs.LABELS[self.label_type]
-        self.binlist, self.total = Anag.create_bins_from_string(label_string)
+        self.binlist, self.total = Anag.create_bins_from_string(label_string, dash, arrow, arrow_up)
         self.logo_image = None
+        self.prefix_b = prefix_b
+        self.prefix_l = prefix_l
         self.prepare_labels()
 
     def prepare_labels(self):
@@ -45,7 +59,7 @@ class Labels:
         self.logo_image = LabelImage(label_type=self.label_type)
         self.logo_image.create_canvas()
         for count, label_id in enumerate(self.binlist):
-            generate_qr(label_id)
+            generate_qr(label_id, self.prefix_b, self.prefix_l)
             self.create_label_canvas(label_id, label_num=count % lpp)
             if count % lpp == lpp - 1:
                 self.logo_image.save_image(label_id, self.label_type)
@@ -55,7 +69,8 @@ class Labels:
             self.logo_image.create_canvas()
 
     def create_label_canvas(self, label_id, label_num=0):
-        self.logo_image.load(f'QRCodes/{label_id}.png')
+        stripped_label_id = strip_arrows(label_id)
+        self.logo_image.load(f'QRCodes/{stripped_label_id}.png')
         self.logo_image.paste(label_id, label_num)
 
 
@@ -85,7 +100,8 @@ class LabelImage:
     # Load
     # opens the required images and loads them into the qr and logo variables
     def load(self, path):
-        qr = Image.open(path)
+        _path = strip_arrows(path)
+        qr = Image.open(_path)
         new_size = self.variables['qr_size'], self.variables['qr_size']
         qr = qr.resize(new_size)
         self.qrs.append(qr)
@@ -128,7 +144,8 @@ class LabelImage:
         draw.text((self.label_position(text_x, text_y, num)), label_id, fill="black", anchor="mm", font=font)
 
     def save_image(self, barcode1, barcode2):
+        barcode1 = strip_arrows(barcode1)
+        barcode2 = strip_arrows(barcode2)
         self.image.save(f'labels/{barcode1}_{barcode2}.png')
-
 
 

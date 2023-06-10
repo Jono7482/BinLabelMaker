@@ -1,5 +1,5 @@
 FONT = '/data/arial.ttf'
-DEFAULT = 'Clay-A...C-1...2'
+DEFAULT = 'SP1-A...B-01...06-A...F'
 LOGO = 'data/Laguna Logo_2022 color.png'
 LABELS = {'1X1 8X10': {
             'lpp': (1, 1),
@@ -27,20 +27,20 @@ LABELS = {'1X1 8X10': {
             'logo_y': 620,
             'font_size': 65,
         },
-        '1X4 6X4': {
-            'lpp': (1, 4),
-            'canvas': (800, 1400),
+        'Rack Labels': {
+            'lpp': (1, 3),
+            'canvas': (800, 1100),
             'qr_size': 265,
             'qr_x': 50,
             'qr_y': 50,
-            'text_x': 528,  # canvas width * .66
-            'text_y': 200,
+            'text_x': 545,  # canvas width * .66
+            'text_y': 100,
             'logo': 160,
             'logo_x': 448,  # canvas width * .66 - logo size / 2
             'logo_y': 160,
             'font_size': 50,
         },
-        '2X2 4X6': {
+        'Floor Labels': {
             'lpp': (2, 2),
             'canvas': (800, 1100),
             'qr_size': 290,
@@ -53,18 +53,18 @@ LABELS = {'1X1 8X10': {
             'logo_y': 355,
             'font_size': 50,
         },
-        '1 4X6': {
-            'lpp': (1, 1),
-            'canvas': (400, 600),
-            'qr_size': 310,
-            'qr_x': 45,
+        'SM 1X2': {
+            'lpp': (4, 10),
+            'canvas': (850, 1100),
+            'qr_size': 60,
+            'qr_x': 20,
             'qr_y': 30,
-            'text_x': 205,  # canvas width /4
-            'text_y': 360,
-            'logo': 185,
-            'logo_x': 105,  # canvas width /4 - logo size / 2
-            'logo_y': 375,
-            'font_size': 50,
+            'text_x': 135,
+            'text_y': 40,
+            'logo': 40,
+            'logo_x': 120,  # canvas width /4 - logo size / 2
+            'logo_y': 55,
+            'font_size': 18,
         },
         }
 
