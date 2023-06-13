@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 import os
 import subprocess
-import Label_specs
+import File_Handler
 import Anag
 import Make_Labels
 
@@ -15,6 +15,8 @@ class App(tk.Tk):
     def __init__(self):
         # setting the window
         super().__init__()
+        self.settings = File_Handler.get_settings()
+        self.labels_settings = File_Handler.get_labels()
         size = (800, 510)
         self.tk.call('tk', 'scaling', 2.0)
         self.geometry(f'{size[0]}x{size[1]}')
@@ -25,7 +27,7 @@ class App(tk.Tk):
 
         # Entry string variable holds the user input used to make bin lists
         self.entry_string_var = tk.StringVar()
-        self.entry_string_var.set(Label_specs.DEFAULT)
+        self.entry_string_var.set(self.settings['DEFAULT'])
 
         # Label for drop down box
         label_top = ttk.Label(text='Label Size:', justify='center', font='bold')
@@ -45,12 +47,12 @@ class App(tk.Tk):
         # values are populated from the Label_Specs file
         self.combo_box_var = tk.StringVar()
         combo_box = ttk.Combobox(self, textvariable=self.combo_box_var)
-        combo_box['values'] = list(Label_specs.LABELS.keys())
-        combo_box.set(list(Label_specs.LABELS.keys())[0])
+        combo_box['values'] = list(self.labels_settings.keys())
+        combo_box.set(list(self.labels_settings.keys())[0])
         combo_box.grid(row=1, columnspan=4, column=0)
 
         # Event detects a change in the combo box selection
-        def c_box_changed(event):
+        def c_box_changed():
             combo_box.bind('<<ComboboxSelected>>', c_box_changed)
 
         # labels and entry window for bin string
@@ -131,7 +133,10 @@ class App(tk.Tk):
     def fill_text_widget(self):
         self.text_widget.delete('1.0', 'end')
         self.text_widget.insert('end', Anag.get_bin_list_text(
-            self.entry_string_var.get(), self.dash_variable.get(), self.arrow_variable.get(), self.arrow_variable_up.get()))
+            self.entry_string_var.get(),
+            self.dash_variable.get(),
+            self.arrow_variable.get(),
+            self.arrow_variable_up.get()))
 
     # Exit
     # Deletes the content of the QRCodes folder and closes the program
@@ -147,5 +152,3 @@ class App(tk.Tk):
         if os.path.exists('Labels'):
             for file in os.scandir('Labels'):
                 os.remove(file.path)
-
-

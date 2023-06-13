@@ -73,4 +73,3 @@ def get_bin_list_text(list_name, dash, arrow, arrow_up):
         lst += f'{each}\n'
     lst += f'Total= {total}\n'
     return lst
-

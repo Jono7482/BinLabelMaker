@@ -1,7 +1,7 @@
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
 import Anag
-import Label_specs
+import File_Handler
 
 
 def strip_arrows(name):
@@ -46,7 +46,7 @@ def generate_qr(name, prefix_b=False, prefix_l=False):
 class Labels:
     def __init__(self, label_type, label_string, dash, arrow, arrow_up, prefix_b, prefix_l):
         self.label_type = label_type
-        self.variables = Label_specs.LABELS[self.label_type]
+        self.variables = File_Handler.get_labels()[self.label_type]
         self.binlist, self.total = Anag.create_bins_from_string(label_string, dash, arrow, arrow_up)
         self.logo_image = None
         self.prefix_b = prefix_b
@@ -82,8 +82,9 @@ class Labels:
 # fitted to the page depending on label type and specifications from Label_specs file
 class LabelImage:
     def __init__(self, label_type):
-        self.variables = Label_specs.LABELS[label_type]
-        logo = Image.open(Label_specs.LOGO)
+        self.settings = File_Handler.get_settings()
+        self.variables = File_Handler.get_labels()[label_type]
+        logo = Image.open(File_Handler.get_settings()['LOGO'])
         new_size = self.variables['logo'], self.variables['logo']
         self.logo = logo.resize(new_size)
         self.qrs = []
@@ -132,7 +133,7 @@ class LabelImage:
         if label_id[-1] == '^':
             label_id = label_id.rstrip('-^')
             logo_x -= 100
-            font = ImageFont.truetype(Label_specs.FONT, 200)
+            font = ImageFont.truetype(self.settings['FONT'], 200)
             if label_id[-1] == 'A':
                 draw.text((self.label_position(635, 230, num)), '▼', fill="black", anchor="mm", font=font)
             else:
@@ -140,12 +141,10 @@ class LabelImage:
 
         self.image.paste(self.qrs[num], (self.label_position(qr_x, qr_y, num)))
         self.image.paste(self.logos[num], (self.label_position(logo_x, logo_y, num)))
-        font = ImageFont.truetype(Label_specs.FONT, self.variables['font_size'])
+        font = ImageFont.truetype(self.settings['FONT'], self.variables['font_size'])
         draw.text((self.label_position(text_x, text_y, num)), label_id, fill="black", anchor="mm", font=font)
 
     def save_image(self, barcode1, barcode2):
         barcode1 = strip_arrows(barcode1)
         barcode2 = strip_arrows(barcode2)
         self.image.save(f'labels/{barcode1}_{barcode2}.png')
-
-
