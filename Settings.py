@@ -1,6 +1,6 @@
 SETTINGS = {'FONT': '/data/arial.ttf',
             'DEFAULT': 'SP1-A...B-01...06-A...F',
-            'LOGO': 'data/Laguna Logo_2022 color.png',
+            'LOGO': 'data/Laguna Logo.png',
             }
 LABELS = {'Full Page': {
             'lpp': (1, 1),

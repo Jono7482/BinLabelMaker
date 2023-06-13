@@ -21,7 +21,7 @@ class App(tk.Tk):
         self.tk.call('tk', 'scaling', 2.0)
         self.geometry(f'{size[0]}x{size[1]}')
         self.maxsize(size[0], size[1])
-        self.iconbitmap('data/jonoico.ico')
+        self.iconbitmap('data/jono.ico')
         self.title('Jono Label Maker')
         self.grid()
 
