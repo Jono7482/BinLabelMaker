@@ -1,6 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
-import Anag
+import Iterator
 import File_Handler
 
 
@@ -47,7 +47,7 @@ class Labels:
     def __init__(self, label_type, label_string, dash, arrow, arrow_up, prefix_b, prefix_l):
         self.label_type = label_type
         self.variables = File_Handler.get_labels()[self.label_type]
-        self.binlist, self.total = Anag.create_bins_from_string(label_string, dash, arrow, arrow_up)
+        self.binlist, self.total = Iterator.create_bins_from_string(label_string, dash, arrow, arrow_up)
         self.logo_image = None
         self.prefix_b = prefix_b
         self.prefix_l = prefix_l

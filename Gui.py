@@ -3,7 +3,7 @@ from tkinter import ttk
 import os
 import subprocess
 import File_Handler
-import Anag
+import Iterator
 import Make_Labels
 
 
@@ -40,7 +40,7 @@ class App(tk.Tk):
         self.text_widget.config(yscrollcommand=scroll_bar.set)
         scroll_bar.grid(rowspan=12, row=1, column=6, sticky='ns')
         self.text_widget.grid(rowspan=12, row=1, column=5, sticky='nw')
-        self.text_widget.insert(tk.END, Anag.get_bin_list_text(self.entry_string_var.get(), 0, 0, 0))
+        self.text_widget.insert(tk.END, Iterator.get_bin_list_text(self.entry_string_var.get(), 0, 0, 0))
 
         # Combo box to hold the different label types
         # selection is used when creating labels
@@ -132,7 +132,7 @@ class App(tk.Tk):
     # Then retrieves a new list of bins with the string variable from Anag file and populates the text window
     def fill_text_widget(self):
         self.text_widget.delete('1.0', 'end')
-        self.text_widget.insert('end', Anag.get_bin_list_text(
+        self.text_widget.insert('end', Iterator.get_bin_list_text(
             self.entry_string_var.get(),
             self.dash_variable.get(),
             self.arrow_variable.get(),
