@@ -1,3 +1,6 @@
+# Pyinstaller command
+# pyinstaller main.py -F -n JonoLabelMaker -w
+
 import Gui
 import File_Handler
 

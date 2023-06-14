@@ -17,10 +17,10 @@ class App(tk.Tk):
         super().__init__()
         self.settings = File_Handler.get_settings()
         self.labels_settings = File_Handler.get_labels()
-        size = (800, 510)
+        size = self.settings['GUI_SIZE']
         self.tk.call('tk', 'scaling', 2.0)
         self.geometry(f'{size[0]}x{size[1]}')
-        self.maxsize(size[0], size[1])
+        # self.maxsize(size[0], size[1])
         self.iconbitmap('data/jono.ico')
         self.title('Jono Label Maker')
         self.grid()
@@ -40,7 +40,8 @@ class App(tk.Tk):
         self.text_widget.config(yscrollcommand=scroll_bar.set)
         scroll_bar.grid(rowspan=12, row=1, column=6, sticky='ns')
         self.text_widget.grid(rowspan=12, row=1, column=5, sticky='nw')
-        self.text_widget.insert(tk.END, Iterator.get_bin_list_text(self.entry_string_var.get(), 0, 0, 0))
+        bin_list = Iterator.create_bins_from_string(self.entry_string_var.get())
+        self.text_widget.insert(tk.END, Iterator.get_bin_list_text(bin_list))
 
         # Combo box to hold the different label types
         # selection is used when creating labels
@@ -78,7 +79,7 @@ class App(tk.Tk):
         button2.grid(row=10, columnspan=4,  column=0, pady=4)
         button3 = ttk.Button(text='Exit', command=self.exit)
         button3.grid(row=12, columnspan=4,  column=0, pady=4)
-        button4 = ttk.Button(text='Delete Labels', command=self.delete_labels)
+        button4 = ttk.Button(text='Delete Labels', command=File_Handler.delete_labels)
         button4.grid(row=11, columnspan=4,  column=0, pady=4)
 
         # Checkboxes
@@ -88,6 +89,7 @@ class App(tk.Tk):
         self.bin_variable = tk.IntVar()
         self.location_variable = tk.IntVar()
         dash_checkbox = tk.Checkbutton(text='Omit Dashes', variable=self.dash_variable, onvalue=1, offvalue=0, )
+        self.dash_variable.set(1)
         dash_checkbox.grid(row=9, column=0)
         arrow_checkbox = tk.Checkbutton(text='Arrows Mix ', variable=self.arrow_variable, onvalue=1, offvalue=0, )
         arrow_checkbox.grid(row=10, column=0)
@@ -104,10 +106,6 @@ class App(tk.Tk):
         vertical_seperator = ttk.Separator(orient='vertical')
         vertical_seperator.grid(rowspan=12, row=1, column=4, sticky='nsew', padx=10)
 
-        # logo = ImageTk.PhotoImage(Image.open("data/jonologo.png"))
-        #
-        # label_logo = ttk.Label(image=logo)
-        # label_logo.grid(row=13, columnspan=2, column=4, pady=0)
     # Generate_Labels
     # Creates Label and Qr folders if needed
     # then sends combobox drop down selection and entry string information to the Make labels file to create Labels
@@ -117,11 +115,16 @@ class App(tk.Tk):
             os.makedirs('Labels')
         if not os.path.exists('QRCodes'):
             os.makedirs('QRCodes')
+        bin_list = self.get_binlist()
+        text_widget = self.text_widget.get("1.0", 'end-1c')
+        if text_widget != Iterator.get_bin_list_text(bin_list):
+            text_widget = text_widget.upper()
+            text_widget = list(text_widget.split('\n'))
+            while "" in text_widget:
+                text_widget.remove("")
+            bin_list = text_widget
         Make_Labels.Labels(label_type=self.combo_box_var.get(),
-                           label_string=self.entry_string_var.get(),
-                           dash=self.dash_variable.get(),
-                           arrow=self.arrow_variable.get(),
-                           arrow_up=self.arrow_variable_up.get(),
+                           binlist=bin_list,
                            prefix_b=self.bin_variable.get(),
                            prefix_l=self.location_variable.get()
                            )
@@ -129,26 +132,22 @@ class App(tk.Tk):
 
     # Fill_Text_Widget
     # Clears current text from text window
-    # Then retrieves a new list of bins with the string variable from Anag file and populates the text window
+    # Then retrieves a new list of bins with the string variable from get_binlist and populates the text window
     def fill_text_widget(self):
         self.text_widget.delete('1.0', 'end')
-        self.text_widget.insert('end', Iterator.get_bin_list_text(
-            self.entry_string_var.get(),
-            self.dash_variable.get(),
-            self.arrow_variable.get(),
-            self.arrow_variable_up.get()))
+        bin_list = self.get_binlist()
+        self.text_widget.insert('end', Iterator.get_bin_list_text(bin_list))
 
     # Exit
     # Deletes the content of the QRCodes folder and closes the program
     def exit(self):
-        if os.path.exists('QRCodes'):
-            for file in os.scandir('QRCodes'):
-                os.remove(file.path)
+        File_Handler.delete_qrcodes()
         self.destroy()
 
-    # Delete_Labels
-    # Deletes the contents of the Labels folder
-    def delete_labels(self):
-        if os.path.exists('Labels'):
-            for file in os.scandir('Labels'):
-                os.remove(file.path)
+    def get_binlist(self):
+        _list = Iterator.create_bins_from_string(
+            self.entry_string_var.get(),
+            self.dash_variable.get(),
+            self.arrow_variable.get(),
+            self.arrow_variable_up.get())
+        return _list

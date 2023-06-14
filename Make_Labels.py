@@ -1,6 +1,5 @@
 from PIL import Image, ImageDraw, ImageFont
 import qrcode
-import Iterator
 import File_Handler
 
 
@@ -26,31 +25,32 @@ def generate_qr(name, prefix_b=False, prefix_l=False):
         border=1,
     )
     # Add Prefix For BINS
+    settings = File_Handler.get_settings()
     _bin = _name
     if prefix_b:
-        _bin = '%B%' + _bin
+        _bin = settings['PREFIX_B'] + _bin
     if prefix_l:
-        _bin = '%L%' + _bin
+        _bin = settings['PREFIX_L'] + _bin
     qr.add_data(_bin)
     img = qr.make_image(fill_color="black", back_color="white")
     filename = f'QRCodes/{_name}.png'
     img.save(filename)
+    return _bin
 
 
 # Labels
-# Takes in a Label type and Label string
-# using the label type and string requests a bin list from Anag
+# Takes in a Label type, label list, and Label string
 # then breaks down the bin list to requests for labels and pages of labels from Label Image
 # sample string (MC-1...2-A...B)
-# Label_type must be a key from Label_specs file
 class Labels:
-    def __init__(self, label_type, label_string, dash, arrow, arrow_up, prefix_b, prefix_l):
+    def __init__(self, label_type, binlist, prefix_b, prefix_l):
         self.label_type = label_type
         self.variables = File_Handler.get_labels()[self.label_type]
-        self.binlist, self.total = Iterator.create_bins_from_string(label_string, dash, arrow, arrow_up)
+        self.binlist = binlist
         self.logo_image = None
         self.prefix_b = prefix_b
         self.prefix_l = prefix_l
+        self.qr_data = None
         self.prepare_labels()
 
     def prepare_labels(self):
@@ -59,7 +59,7 @@ class Labels:
         self.logo_image = LabelImage(label_type=self.label_type)
         self.logo_image.create_canvas()
         for count, label_id in enumerate(self.binlist):
-            generate_qr(label_id, self.prefix_b, self.prefix_l)
+            self.qr_data = generate_qr(label_id, self.prefix_b, self.prefix_l)
             self.create_label_canvas(label_id, label_num=count % lpp)
             if count % lpp == lpp - 1:
                 self.logo_image.save_image(label_id, self.label_type)
@@ -71,15 +71,15 @@ class Labels:
     def create_label_canvas(self, label_id, label_num=0):
         stripped_label_id = strip_arrows(label_id)
         self.logo_image.load(f'QRCodes/{stripped_label_id}.png')
-        self.logo_image.paste(label_id, label_num)
+        self.logo_image.paste(label_id, label_num, self.qr_data)
 
 
 # LabelImage
 # This is where the actual labels are drawn onto an image and saved
 # opens logos and qr codes resizes them and positions and pastes them to the page
 # then saves the finished page to Labels folder as .png
-# label component positions are pulled from Label_specs file and
-# fitted to the page depending on label type and specifications from Label_specs file
+# label component positions are pulled from data/settings.json file and
+# fitted to the page depending on label type and specifications from settings file
 class LabelImage:
     def __init__(self, label_type):
         self.settings = File_Handler.get_settings()
@@ -92,7 +92,7 @@ class LabelImage:
         self.image = None
 
     # Create_Canvas
-    # Creates a blank page and resents the qr and logo storage variables back to empty
+    # Creates a blank page and resets the qr and logo storage variables back to empty
     def create_canvas(self):
         self.qrs = []
         self.logos = []
@@ -124,27 +124,35 @@ class LabelImage:
 
     # Paste
     # places the images and text onto the page
-    def paste(self, label_id, num):
+    def paste(self, label_id, num, qr_data):
         logo_x, logo_y = self.variables['logo_x'], self.variables['logo_y']
         qr_x, qr_y = self.variables['qr_x'], self.variables['qr_y']
         text_x, text_y = self.variables['text_x'], self.variables['text_y']
         draw = ImageDraw.Draw(self.image)
 
-        if label_id[-1] == '^':
-            label_id = label_id.rstrip('-^')
-            logo_x -= 100
-            font = ImageFont.truetype(self.settings['FONT'], 200)
-            if label_id[-1] == 'A':
-                draw.text((self.label_position(635, 230, num)), '▼', fill="black", anchor="mm", font=font)
-            else:
-                draw.text((self.label_position(635, 230, num)), '▲', fill="black", anchor="mm", font=font)
+        #  If Label ID ends with an arrow replace Logo with arrow
+        if label_id[-1] == '▲':
+            font = ImageFont.truetype(self.settings['FONT'], (self.variables['font_size'] * 4))
+            draw.text((self.label_position(logo_x, logo_y, num)), '▲', fill="black", anchor="lt", font=font)
+        elif label_id[-1] == '▼':
+            font = ImageFont.truetype(self.settings['FONT'], (self.variables['font_size'] * 4))
+            draw.text((self.label_position(logo_x, logo_y, num)), '▼', fill="black", anchor="lt", font=font)
+        else:
+            self.image.paste(self.logos[num], (self.label_position(logo_x, logo_y, num)))
 
+        #  Add QR Code
         self.image.paste(self.qrs[num], (self.label_position(qr_x, qr_y, num)))
-        self.image.paste(self.logos[num], (self.label_position(logo_x, logo_y, num)))
+
+        #  Add Label Text
         font = ImageFont.truetype(self.settings['FONT'], self.variables['font_size'])
         draw.text((self.label_position(text_x, text_y, num)), label_id, fill="black", anchor="mm", font=font)
 
-    def save_image(self, barcode1, barcode2):
-        barcode1 = strip_arrows(barcode1)
-        barcode2 = strip_arrows(barcode2)
-        self.image.save(f'labels/{barcode1}_{barcode2}.png')
+        #  Add QR Data above QR Code
+        if self.settings['SHOW_QR_DATA']:
+            font = ImageFont.truetype(self.settings['FONT'], int((self.variables['font_size'] / 4)))
+            draw.text((self.label_position(qr_x, qr_y, num)), qr_data, fill="black", anchor="lb", font=font)
+
+    def save_image(self, label1, label_type):
+        label1 = strip_arrows(label1)
+        label_type = strip_arrows(label_type)
+        self.image.save(f'labels/{label1} {label_type}.png')

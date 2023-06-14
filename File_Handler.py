@@ -31,3 +31,18 @@ def get_settings():
 
 def print_json_object(json_list):
     print(json.dumps(json_list, indent=4))
+
+
+# Delete_Labels
+# Deletes the contents of the Labels folder
+def delete_labels():
+    if os.path.exists('Labels'):
+        for file in os.scandir('Labels'):
+            os.remove(file.path)
+    delete_qrcodes()
+
+
+def delete_qrcodes():
+    if os.path.exists('QRCodes'):
+        for file in os.scandir('QRCodes'):
+            os.remove(file.path)

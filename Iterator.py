@@ -1,11 +1,13 @@
 from itertools import product
 
 
+#  number_list creates a list of numbers from a given range
 def number_list(start='0', end='0', digits=2):
     num_list = list(range(int(start), int(end) + 1, 1))
     return list(map(lambda x: f"{x:0{digits}d}", num_list))
 
 
+#  letter_list creates a list of letters from a range of letters
 def letter_list(start, end):
     start = ord(start)
     end = ord(end)
@@ -13,6 +15,12 @@ def letter_list(start, end):
     return list(map(lambda x: chr(x), num_list))
 
 
+#  given a string consisting of '-' for sections
+#  and '...' or '…' for ranges will create a list of every combination
+#  if dash is true it will remove all bt the first dash
+#  if arrow is true will add down arrows before and after bins ending in 'A'
+#  and up arrows for the rest.
+#  if arrow_up is true they only get up arrows
 def create_bins_from_string(string, dash=True, arrow=False, arrow_up=False):
     omit_dashes = dash
     add_arrows = arrow
@@ -37,6 +45,8 @@ def create_bins_from_string(string, dash=True, arrow=False, arrow_up=False):
         else:
             list_of_bins.append([each])
 
+#  If omit dashes removes all but first dash
+#  also pieces back together the possible bin variations into a bin list
     bin_list = []
     if omit_dashes and len(list_of_bins) >= 3:
         for each in product(*list_of_bins):
@@ -51,7 +61,7 @@ def create_bins_from_string(string, dash=True, arrow=False, arrow_up=False):
         for each in product(*list_of_bins):
             bin_list.append(f"{'-'.join([*each])}")
 
-    #  ADD arrows at end of bin, 'A' indicates a down arrow, everything else gets an up arrow
+#  ADD arrows at end of each bin. 'A' indicates a down arrow, everything else gets an up arrow
     if add_arrows or arrows_up:
         for index, _each in enumerate(bin_list):
             _each = list(_each)
@@ -63,13 +73,14 @@ def create_bins_from_string(string, dash=True, arrow=False, arrow_up=False):
                 _each.append('▲')
             bin_list[index] = "".join(_each)
 
-    return bin_list, len(bin_list)
+    return bin_list
 
 
-def get_bin_list_text(list_name, dash, arrow, arrow_up):
-    bin_list, total = create_bins_from_string(list_name, dash, arrow, arrow_up)
+#  gets a bin list and breaks it up with new line and adds a total
+def get_bin_list_text(bin_list):
+    total = len(bin_list)
     lst = ''
     for each in bin_list:
         lst += f'{each}\n'
-    lst += f'Total= {total}\n'
+    lst += f'Total= {total}'
     return lst

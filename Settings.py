@@ -1,6 +1,10 @@
 SETTINGS = {'FONT': '/data/arial.ttf',
-            'DEFAULT': 'SP1-A...B-01...06-A...F',
+            'DEFAULT': 'GLAZE-A...B-01...04-A...C',
             'LOGO': 'data/Laguna Logo.png',
+            'GUI_SIZE': (800, 510),
+            'PREFIX_B': '%B%',
+            'PREFIX_L': '%LOC%',
+            'SHOW_QR_DATA': True,
             }
 LABELS = {'Full Page': {
             'lpp': (1, 1),
