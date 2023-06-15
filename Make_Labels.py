@@ -114,17 +114,24 @@ class LabelImage:
     # num % lpp_x for the x multiplier
     # num floor lpp_x for the y multiplier
     def label_position(self, x, y, num):
+        page_offset_x = self.variables["page_offset"][0]
+        page_offset_y = self.variables["page_offset"][1]
+        canvas_usable_x = self.variables['canvas_usable'][0]
+        canvas_usable_y = self.variables['canvas_usable'][1]
         lpp_x = self.variables["lpp"][0]
         lpp_y = self.variables["lpp"][1]
         mod_x = num % lpp_x
         floor_y = num // lpp_x
-        x = int(mod_x * (self.image.width / lpp_x) + x)
-        y = int(floor_y * (self.image.height / lpp_y) + y)
+        x = int(mod_x * (canvas_usable_x / lpp_x) + x)
+        y = int(floor_y * (canvas_usable_y / lpp_y) + y)
+        x = x + page_offset_x
+        y = y + page_offset_y
         return x, y
 
     # Paste
     # places the images and text onto the page
     def paste(self, label_id, num, qr_data):
+        font_size = self.variables['font_size']
         logo_x, logo_y = self.variables['logo_x'], self.variables['logo_y']
         qr_x, qr_y = self.variables['qr_x'], self.variables['qr_y']
         text_x, text_y = self.variables['text_x'], self.variables['text_y']
@@ -132,10 +139,10 @@ class LabelImage:
 
         #  If Label ID ends with an arrow replace Logo with arrow
         if label_id[-1] == '▲':
-            font = ImageFont.truetype(self.settings['FONT'], (self.variables['font_size'] * 4))
+            font = ImageFont.truetype(self.settings['FONT'], (font_size * 4))
             draw.text((self.label_position(logo_x, logo_y, num)), '▲', fill="black", anchor="lt", font=font)
         elif label_id[-1] == '▼':
-            font = ImageFont.truetype(self.settings['FONT'], (self.variables['font_size'] * 4))
+            font = ImageFont.truetype(self.settings['FONT'], (font_size * 4))
             draw.text((self.label_position(logo_x, logo_y, num)), '▼', fill="black", anchor="lt", font=font)
         else:
             self.image.paste(self.logos[num], (self.label_position(logo_x, logo_y, num)))
@@ -144,12 +151,12 @@ class LabelImage:
         self.image.paste(self.qrs[num], (self.label_position(qr_x, qr_y, num)))
 
         #  Add Label Text
-        font = ImageFont.truetype(self.settings['FONT'], self.variables['font_size'])
+        font = ImageFont.truetype(self.settings['FONT'], font_size)
         draw.text((self.label_position(text_x, text_y, num)), label_id, fill="black", anchor="mm", font=font)
 
         #  Add QR Data above QR Code
         if self.settings['SHOW_QR_DATA']:
-            font = ImageFont.truetype(self.settings['FONT'], int((self.variables['font_size'] / 4)))
+            font = ImageFont.truetype(self.settings['FONT'], int((font_size / self.settings['QR_DATA_SCALE'])))
             draw.text((self.label_position(qr_x, qr_y, num)), qr_data, fill="black", anchor="lb", font=font)
 
     def save_image(self, label1, label_type):
