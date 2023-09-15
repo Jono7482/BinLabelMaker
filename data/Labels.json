@@ -1,30 +1,30 @@
 {
-    "Full Page": {
-        "lpp": [
-            1,
-            1
+    "Full Page": {         // Pick a name for this Label
+        "lpp": [           // Labels Per Page x,y
+            1,             // X
+            1              // Y
         ],
-        "canvas": [
-            850,
-            1100
+        "canvas": [        // Paper Size x,y
+            850,           // X
+            1100           // Y
         ],
-        "canvas_usable": [
-            850,
-            1100
+        "canvas_usable": [ // Printable area x,y
+            850,           // X
+            1100           // Y
         ],
-        "page_offset": [
-            0,
-            20
+        "page_offset": [   // offset to push over labels x(push right), y (push down)
+            0,             // X
+            20             // Y
         ],
-        "qr_size": 800,
-        "qr_x": 25,
-        "qr_y": 25,
-        "text_x": 425,
-        "text_y": 845,
-        "logo": 230,
-        "logo_x": 280,
-        "logo_y": 870,
-        "font_size": 100
+        "qr_size": 800,    // number to scale the size of the QR code
+        "qr_x": 25,        // top left corner of qr x position from left
+        "qr_y": 25,        // top left corner of qr y position from top
+        "text_x": 425,     // center of text x position from left
+        "text_y": 845,     // center of text x position from left
+        "logo": 230,       // number to scale the size of the logo
+        "logo_x": 280,     // top left corner of logo x position from left
+        "logo_y": 870,     // top left corner of logo y position from top
+        "font_size": 100   // Font size
     },
     "Rack Labels": {
         "lpp": [
